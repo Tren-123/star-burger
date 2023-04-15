@@ -4,6 +4,7 @@ from .models import Order, OrderProduct
 from .models import Product
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
+from .serializers import OrderSerializer
 
 
 def banners_list_api(request):
@@ -60,22 +61,23 @@ def product_list_api(request):
 
 @api_view(['POST'])
 def register_order(request):
-    raw_order = request.data
+    serializer = OrderSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+
     order = Order.objects.create(
-        customer_first_name=raw_order['firstname'],
-        customer_last_name=raw_order['lastname'],
-        customer_phone_number=raw_order['phonenumber'],
-        adress=raw_order['address'],
+        firstname=serializer.validated_data['firstname'],
+        lastname=serializer.validated_data['lastname'],
+        phonenumber=serializer.validated_data['phonenumber'],
+        address=serializer.validated_data['address'],
     )
 
-    order_products = []
-    for raw_product in raw_order['products']:
-        order_products.append(
-            OrderProduct(
-                order=order,
-                product_id=raw_product['product'],
-                quantity=raw_product['quantity'],
-            )
-        )
+    order_products = [
+        OrderProduct(
+            order=order,
+            product=validated_product['product'],
+            quantity=validated_product['quantity'],
+        ) for validated_product in serializer.validated_data['products']
+    ]
     OrderProduct.objects.bulk_create(order_products)
+    
     return Response({})
