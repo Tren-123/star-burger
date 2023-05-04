@@ -76,6 +76,7 @@ def register_order(request):
             order=order,
             product=validated_product['product'],
             quantity=validated_product['quantity'],
+            fix_price=validated_product['product'].price
         ) for validated_product in serializer.validated_data['products']
     ]
     OrderProduct.objects.bulk_create(order_products)
