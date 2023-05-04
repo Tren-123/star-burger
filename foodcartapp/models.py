@@ -147,7 +147,7 @@ class Order(models.Model):
     )
     address = models.TextField('адрес доставки')
 
-    orders = OrderFullPriceQuerySet.as_manager()
+    objects = OrderFullPriceQuerySet.as_manager()
 
     class Meta:
         verbose_name = 'Заказ'
@@ -161,6 +161,7 @@ class OrderProduct(models.Model):
     order = models.ForeignKey(
         Order,
         related_name='products',
+        verbose_name='заказ',
         on_delete=models.CASCADE,
     )
     product = models.ForeignKey(
@@ -173,10 +174,16 @@ class OrderProduct(models.Model):
         'количество',
         validators=[MinValueValidator(1)],
     )
+    fix_price = models.DecimalField(
+        'цена в заказе',
+        max_digits=6,
+        decimal_places=2,
+        validators=[MinValueValidator(0)],
+    )
 
     class Meta:
         verbose_name = 'Товар в заказе'
         verbose_name_plural = 'Товары в заказе'
 
     def __str__(self):
-        return f'{self.order}. {self.product.name}'
+        return f'product {self.product_id} in order {self.order_id}'
