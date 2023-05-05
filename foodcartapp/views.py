@@ -5,6 +5,7 @@ from .models import Product
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from .serializers import OrderSerializer
+from django.db import transaction
 
 
 def banners_list_api(request):
@@ -59,6 +60,7 @@ def product_list_api(request):
     })
 
 
+@transaction.atomic
 @api_view(['POST'])
 def register_order(request):
     serializer = OrderSerializer(data=request.data)
@@ -70,7 +72,6 @@ def register_order(request):
         phonenumber=serializer.validated_data['phonenumber'],
         address=serializer.validated_data['address'],
     )
-
     order_products = [
         OrderProduct(
             order=order,
