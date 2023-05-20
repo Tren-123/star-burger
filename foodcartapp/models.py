@@ -162,6 +162,7 @@ class Order(models.Model):
         max_length=100,
         choices=STATUS_CHOICES,
         default=NEW_ORDER,
+        db_index=True,
     )
 
     objects = OrderFullPriceQuerySet.as_manager()
