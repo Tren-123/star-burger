@@ -138,11 +138,19 @@ class Order(models.Model):
     COOKING = 'cooking'
     IN_DELIVERY = 'in_delivery'
     COMPLEATED = 'compleated'
+
     STATUS_CHOICES = [
         (NEW_ORDER, 'Необработанный'),
         (COOKING, 'Готовится в ресторане'),
         (IN_DELIVERY, 'Доставляется курьером'),
         (COMPLEATED, 'Доставлен'),
+    ]
+    ON_SITE = 'on_site'
+    CASH = 'cash'
+
+    PAYMENT_CHOICES = [
+        (ON_SITE, 'Электронно'),
+        (CASH, 'Наличностью'),
     ]
     firstname = models.CharField(
         'имя клиента',
@@ -159,7 +167,6 @@ class Order(models.Model):
         'адрес доставки',
         max_length=300,
     )
-
     status = models.CharField(
         'статус заказа',
         max_length=100,
@@ -167,30 +174,33 @@ class Order(models.Model):
         default=NEW_ORDER,
         db_index=True,
     )
-
     manager_comment = models.TextField(
         'комментарий',
         max_length=300,
         blank=True,
     )
-
     registrated_at = models.DateTimeField(
         'дата создания',
         auto_now_add=True,
         db_index=True,
     )
-
     called_at = models.DateTimeField(
         'дата звонка',
         blank=True,
         null=True,
         db_index=True,
     )
-
     delivered_at = models.DateTimeField(
         'дата доставки',
         blank=True,
         null=True,
+        db_index=True,
+    )
+    payment_method = models.CharField(
+        'способ оплаты',
+        max_length=100,
+        choices=PAYMENT_CHOICES,
+        default=CASH,
         db_index=True,
     )
 
