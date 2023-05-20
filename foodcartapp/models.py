@@ -174,6 +174,24 @@ class Order(models.Model):
         blank=True,
     )
 
+    registrated_at = models.DateTimeField(
+        'дата создания',
+        auto_now_add=True,
+        db_index=True,
+    )
+
+    called_at = models.DateTimeField(
+        'дата звонка',
+        blank=True,
+        db_index=True,
+    )
+
+    delivered_at = models.DateTimeField(
+        'дата доставки',
+        blank=True,
+        db_index=True,
+    )
+
     objects = OrderFullPriceQuerySet.as_manager()
 
     class Meta:

@@ -117,6 +117,21 @@ class ProductAdmin(admin.ModelAdmin):
 
 @admin.register(Order)
 class OrderAdmin(admin.ModelAdmin):
+    readonly_fields = (
+        'registrated_at',
+    )
+    fields = (
+        'firstname',
+        'lastname',
+        'phonenumber',
+        'address',
+        'status',
+        'manager_comment',
+        'registrated_at',
+        'called_at',
+        'delivered_at',
+    )
+
     inlines = [
         OrderProductInline,
     ]
