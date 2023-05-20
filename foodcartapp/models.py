@@ -155,7 +155,10 @@ class Order(models.Model):
     phonenumber = PhoneNumberField(
         'номер телефона клиента',
     )
-    address = models.TextField('адрес доставки')
+    address = models.TextField(
+        'адрес доставки',
+        max_length=300,
+    )
 
     status = models.CharField(
         'статус заказа',
@@ -163,6 +166,12 @@ class Order(models.Model):
         choices=STATUS_CHOICES,
         default=NEW_ORDER,
         db_index=True,
+    )
+
+    manager_comment = models.TextField(
+        'комментарий',
+        max_length=300,
+        blank=True,
     )
 
     objects = OrderFullPriceQuerySet.as_manager()
