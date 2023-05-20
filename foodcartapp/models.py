@@ -183,12 +183,14 @@ class Order(models.Model):
     called_at = models.DateTimeField(
         'дата звонка',
         blank=True,
+        null=True,
         db_index=True,
     )
 
     delivered_at = models.DateTimeField(
         'дата доставки',
         blank=True,
+        null=True,
         db_index=True,
     )
 
