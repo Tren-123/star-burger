@@ -134,6 +134,16 @@ class OrderFullPriceQuerySet(models.QuerySet):
 
 
 class Order(models.Model):
+    NEW_ORDER = 'new_order'
+    COOKING = 'cooking'
+    IN_DELIVERY = 'in_delivery'
+    COMPLEATED = 'compleated'
+    STATUS_CHOICES = [
+        (NEW_ORDER, 'Необработанный'),
+        (COOKING, 'Готовится в ресторане'),
+        (IN_DELIVERY, 'Доставляется курьером'),
+        (COMPLEATED, 'Доставлен'),
+    ]
     firstname = models.CharField(
         'имя клиента',
         max_length=200,
@@ -146,6 +156,13 @@ class Order(models.Model):
         'номер телефона клиента',
     )
     address = models.TextField('адрес доставки')
+
+    status = models.CharField(
+        'статус заказа',
+        max_length=100,
+        choices=STATUS_CHOICES,
+        default=NEW_ORDER,
+    )
 
     objects = OrderFullPriceQuerySet.as_manager()
 
