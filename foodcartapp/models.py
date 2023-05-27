@@ -123,21 +123,21 @@ class RestaurantMenuItem(models.Model):
         ]
 
     def __str__(self):
-        return f"{self.restaurant.name} - {self.product.name}"
+        return f'restaraunt № {self.restaurant_id} - product № {self.product_id}'
 
 
 class OrderFullPriceQuerySet(models.QuerySet):
     def with_full_price(self):
-        return self.annotate(
+        return self.prefetch_related('products').annotate(
             full_price=Sum(F('products__fix_price') * F('products__quantity')),
         )
 
 
 class Order(models.Model):
-    NEW_ORDER = 'new_order'
-    COOKING = 'cooking'
-    IN_DELIVERY = 'in_delivery'
-    COMPLEATED = 'compleated'
+    NEW_ORDER = '1.new_order'
+    COOKING = '2.cooking'
+    IN_DELIVERY = '3.in_delivery'
+    COMPLEATED = '4.compleated'
 
     STATUS_CHOICES = [
         (NEW_ORDER, 'Необработанный'),
@@ -202,6 +202,14 @@ class Order(models.Model):
         choices=PAYMENT_CHOICES,
         default=CASH,
         db_index=True,
+    )
+    cooking_restaurant = models.ForeignKey(
+        Restaurant,
+        related_name='orders',
+        verbose_name='готовит ресторан',
+        on_delete=models.SET_NULL,
+        blank=True,
+        null=True,
     )
 
     objects = OrderFullPriceQuerySet.as_manager()

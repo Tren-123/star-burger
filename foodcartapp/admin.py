@@ -131,6 +131,7 @@ class OrderAdmin(admin.ModelAdmin):
         'registrated_at',
         'called_at',
         'delivered_at',
+        'cooking_restaurant',
     )
 
     inlines = [
