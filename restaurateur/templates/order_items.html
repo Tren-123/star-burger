@@ -31,24 +31,20 @@
         <td>{{ item.0.get_status_display }}</td>
         <td>{{ item.0.get_payment_method_display }}</td>
         <td>{{ item.0.full_price }} руб.</td>
-        <td>{{ item.0.firstname }} {{ item.lastname }}</td>
+        <td>{{ item.0.firstname }} {{ item.0.lastname }}</td>
         <td>{{ item.0.phonenumber }}</td>
         <td>{{ item.0.address }}</td>
         <td>{{ item.0.manager_comment }}</td>
         <td>{% if item.0.status == item.0.NEW_ORDER %}
           <details>
             <summary>Может быть приготовлен ресторанами:</summary>
-            <ul>{% for restaraunt in item.1 %}
-              <li>{{ restaraunt.name }}</li>
+            <ul>{% for restaurant_item in item.1 %}
+              <li>{{ restaurant_item.0 }} - {{ restaurant_item.1 }} км</li>
                 {% endfor %}
             </ul>
           </details>
           {% else %}
-            Готовит {% for restaraunt in item.1 %}
-              {% if restaraunt.id == item.0.cooking_restaurant_id %}
-                {{ restaraunt.name }}
-              {% endif %}
-              {% endfor %}
+            Готовит {{ item.1 }}
             {% endif %}
         </td>
         <td><a href="{% url 'admin:foodcartapp_order_change' item.0.id %}?next={{ request.get_full_path|urlencode }}">Редактировать</a></td>

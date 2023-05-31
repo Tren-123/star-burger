@@ -3,12 +3,15 @@ from django.shortcuts import redirect, render
 from django.views import View
 from django.urls import reverse_lazy
 from django.contrib.auth.decorators import user_passes_test
+from django.conf import settings
 
 from django.contrib.auth import authenticate, login
 from django.contrib.auth import views as auth_views
 
-
 from foodcartapp.models import Product, Restaurant, Order, RestaurantMenuItem
+
+import requests
+from geopy.distance import lonlat, distance
 
 
 class Login(forms.Form):
@@ -90,26 +93,83 @@ def view_restaurants(request):
     })
 
 
+def fetch_coordinates(apikey, address):
+    try:
+        base_url = "https://geocode-maps.yandex.ru/1.x"
+        response = requests.get(base_url, params={
+            "geocode": address,
+            "apikey": apikey,
+            "format": "json",
+        })
+        response.raise_for_status()
+        found_places = response.json()['response']['GeoObjectCollection']['featureMember']
+
+        if not found_places:
+            return None
+
+        if 'error' in found_places:
+            raise requests.exceptions.HTTPError(found_places['error'])
+
+        most_relevant = found_places[0]
+        lon, lat = most_relevant['GeoObject']['Point']['pos'].split(" ")
+        return lon, lat
+    except requests.exceptions.HTTPError as HTTPError:
+        print(HTTPError)
+        return None
+
+
+def get_distance_btwn_2_places(api_key, address_1, address_2):
+    coordinates_1 = fetch_coordinates(api_key, address_1)
+    coordinates_2 = fetch_coordinates(api_key, address_2)
+
+    if coordinates_1 is None or coordinates_2 is None:
+        return 'Ошибка определения координат'
+
+    return round(distance(
+        lonlat(*coordinates_1),
+        lonlat(*coordinates_2),
+    ).km, 2)
+
+
+def get_new_order_item(order, order_items, menu_items, api_key):
+    can_cook_restaurants = {}
+    for order_item in order.products.all():
+        if can_cook_restaurants == {}:
+            for menu_item in menu_items:
+                if menu_item.product_id == order_item.product_id and menu_item.availability:
+                    can_cook_restaurants[menu_item.restaurant] = (
+                        menu_item.restaurant.name,
+                        get_distance_btwn_2_places(api_key, order.address, menu_item.restaurant.address)
+                    )
+        elif can_cook_restaurants != {}:
+            for menu_item in menu_items:
+                if menu_item.restaurant in can_cook_restaurants \
+                    and menu_item.product_id == order_item.product_id \
+                    and not menu_item.availability:
+                    can_cook_restaurants.pop(menu_item.restaurant, None)
+
+    order_items.append((order, sorted(can_cook_restaurants.values(), key=lambda restaurant: restaurant[1])))
+
+
+def get_not_new_order_item(order, order_items, menu_items):
+    order_items.append((
+        order,
+        [menu_item.restaurant.name for menu_item in menu_items
+        if menu_item.restaurant_id == order.cooking_restaurant_id][0]
+    ))
+
+
 @user_passes_test(is_manager, login_url='restaurateur:login')
 def view_orders(request):
     menu_items = list(RestaurantMenuItem.objects.select_related('restaurant'))
     order_items = []
-    for order in Order.objects.with_full_price().exclude(status=Order.COMPLEATED).order_by('status'):
-        can_cook_restaurants = {}
-        for order_item in order.products.all():
-            if can_cook_restaurants == {}:
-                can_cook_restaurants = {
-                    menu_item.restaurant: True for menu_item in menu_items
-                    if menu_item.product_id == order_item.product_id and menu_item.availability
-                }
-            elif can_cook_restaurants != {}:
-                for menu_item in menu_items:
-                    if menu_item.restaurant in can_cook_restaurants \
-                        and menu_item.product_id == order_item.product_id \
-                        and not menu_item.availability:
-                        can_cook_restaurants.pop(menu_item.restaurant, None)
 
-        order_items.append((order, can_cook_restaurants.keys()))
+    for order in Order.objects.with_full_price().exclude(status=Order.COMPLEATED).order_by('status'):
+        if order.cooking_restaurant_id:
+            get_not_new_order_item(order, order_items, menu_items)
+        else:
+            get_new_order_item(order, order_items, menu_items, settings.YANDEX_GEOCODER_API_KEY)
+
     return render(request, template_name='order_items.html', context={
         'order_items': order_items,
     })

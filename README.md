@@ -21,7 +21,7 @@
 
 Скачайте код:
 ```sh
-git clone https://github.com/devmanorg/star-burger.git
+git clone https://github.com/Tren-123/star-burger
 ```
 
 Перейдите в каталог проекта:
@@ -57,6 +57,12 @@ pip install -r requirements.txt
 Определите переменную окружения `SECRET_KEY`. Создать файл `.env` в каталоге `star_burger/` и положите туда такой код:
 ```sh
 SECRET_KEY=django-insecure-0if40nf4nf93n4
+```
+
+Проект использует API Yandex Геокодер для преобразования текстового адреса в координаты. Для работы требуется API ключ, получите его в [кабинете разработчика](https://developer.tech.yandex.ru/services).
+Полученный ключ поместите в переменную окружения `YANDEX_GEOCODER_API_KEY` и добавьте переменную в файл `.env`:
+```sh
+YANDEX_GEOCODER_API_KEY=your_personal_secret_key_here
 ```
 
 Создайте файл базы данных SQLite и отмигрируйте её следующей командой:
