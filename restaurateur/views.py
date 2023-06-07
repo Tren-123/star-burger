@@ -4,11 +4,15 @@ from django.views import View
 from django.urls import reverse_lazy
 from django.contrib.auth.decorators import user_passes_test
 from django.conf import settings
+from django.contrib.gis.geos import Point
+from django.db.models import Subquery, OuterRef
+from django.db import IntegrityError
 
 from django.contrib.auth import authenticate, login
 from django.contrib.auth import views as auth_views
 
 from foodcartapp.models import Product, Restaurant, Order, RestaurantMenuItem
+from coordinatesapp.models import Place
 
 import requests
 from geopy.distance import lonlat, distance
@@ -118,17 +122,43 @@ def fetch_coordinates(apikey, address):
         return None
 
 
-def get_distance_btwn_2_places(api_key, address_1, address_2):
-    coordinates_1 = fetch_coordinates(api_key, address_1)
-    coordinates_2 = fetch_coordinates(api_key, address_2)
+def get_or_create_coordinates(api_key, address):
+    try:
+        address_coordinates = fetch_coordinates(api_key, address)
+        if address_coordinates is not None:
+            Place.objects.create(text_address=address, coordinates=Point(tuple(map(float, address_coordinates))))
+    except IntegrityError as e:
+        if 'unique constraint' in str(e.args).lower():
+            print('there are identical addresses in new orders that are not in db')
+    return address_coordinates
 
-    if coordinates_1 is None or coordinates_2 is None:
+
+def get_distance_btwn_2_places(api_key, order, menu_item):
+    if order.coords is None:
+        customer_coordinates = get_or_create_coordinates(api_key, order.address)
+    else:
+        customer_coordinates = order.coords.coords
+
+    if menu_item.coords is None:
+        restaurant_coordinates = get_or_create_coordinates(api_key, menu_item.restaurant.address)
+    else:
+        restaurant_coordinates = menu_item.coords.coords
+
+    if customer_coordinates is None or restaurant_coordinates is None:
         return 'Ошибка определения координат'
 
     return round(distance(
-        lonlat(*coordinates_1),
-        lonlat(*coordinates_2),
+        lonlat(*customer_coordinates),
+        lonlat(*restaurant_coordinates),
     ).km, 2)
+
+
+def get_not_new_order_item(order, order_items, menu_items):
+    order_items.append((
+        order,
+        [menu_item.restaurant.name for menu_item in menu_items
+        if menu_item.restaurant_id == order.cooking_restaurant_id][0]
+    ))
 
 
 def get_new_order_item(order, order_items, menu_items, api_key):
@@ -139,7 +169,7 @@ def get_new_order_item(order, order_items, menu_items, api_key):
                 if menu_item.product_id == order_item.product_id and menu_item.availability:
                     can_cook_restaurants[menu_item.restaurant] = (
                         menu_item.restaurant.name,
-                        get_distance_btwn_2_places(api_key, order.address, menu_item.restaurant.address)
+                        get_distance_btwn_2_places(api_key, order, menu_item)
                     )
         elif can_cook_restaurants != {}:
             for menu_item in menu_items:
@@ -151,20 +181,22 @@ def get_new_order_item(order, order_items, menu_items, api_key):
     order_items.append((order, sorted(can_cook_restaurants.values(), key=lambda restaurant: restaurant[1])))
 
 
-def get_not_new_order_item(order, order_items, menu_items):
-    order_items.append((
-        order,
-        [menu_item.restaurant.name for menu_item in menu_items
-        if menu_item.restaurant_id == order.cooking_restaurant_id][0]
-    ))
-
-
 @user_passes_test(is_manager, login_url='restaurateur:login')
 def view_orders(request):
-    menu_items = list(RestaurantMenuItem.objects.select_related('restaurant'))
+    restaurant_place = Place.objects.filter(text_address=OuterRef('restaurant__address'))
+    customer_place = Place.objects.filter(text_address=OuterRef('address'))
+
+    menu_items = list(RestaurantMenuItem.objects.select_related('restaurant').annotate(
+        coords=Subquery(restaurant_place.values('coordinates'))
+    ))
     order_items = []
 
-    for order in Order.objects.with_full_price().exclude(status=Order.COMPLEATED).order_by('status'):
+    for order in Order.objects.with_full_price().annotate(
+        coords=Subquery(customer_place.values('coordinates'))
+        ).exclude(
+        status=Order.COMPLEATED
+        ).order_by('status'):
+
         if order.cooking_restaurant_id:
             get_not_new_order_item(order, order_items, menu_items)
         else:
