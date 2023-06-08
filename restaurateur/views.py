@@ -38,7 +38,7 @@ class Login(forms.Form):
 class LoginView(View):
     def get(self, request, *args, **kwargs):
         form = Login()
-        return render(request, "login.html", context={
+        return render(request, 'login.html', context={
             'form': form
         })
 
@@ -53,10 +53,10 @@ class LoginView(View):
             if user:
                 login(request, user)
                 if user.is_staff:  # FIXME replace with specific permission
-                    return redirect("restaurateur:RestaurantView")
-                return redirect("start_page")
+                    return redirect('restaurateur:RestaurantView')
+                return redirect('start_page')
 
-        return render(request, "login.html", context={
+        return render(request, 'login.html', context={
             'form': form,
             'ivalid': True,
         })
@@ -84,7 +84,7 @@ def view_products(request):
             (product, ordered_availability)
         )
 
-    return render(request, template_name="products_list.html", context={
+    return render(request, template_name='products_list.html', context={
         'products_with_restaurant_availability': products_with_restaurant_availability,
         'restaurants': restaurants,
     })
@@ -92,18 +92,18 @@ def view_products(request):
 
 @user_passes_test(is_manager, login_url='restaurateur:login')
 def view_restaurants(request):
-    return render(request, template_name="restaurants_list.html", context={
+    return render(request, template_name='restaurants_list.html', context={
         'restaurants': Restaurant.objects.all(),
     })
 
 
 def fetch_coordinates(apikey, address):
     try:
-        base_url = "https://geocode-maps.yandex.ru/1.x"
+        base_url = 'https://geocode-maps.yandex.ru/1.x'
         response = requests.get(base_url, params={
-            "geocode": address,
-            "apikey": apikey,
-            "format": "json",
+            'geocode': address,
+            'apikey': apikey,
+            'format': 'json',
         })
         response.raise_for_status()
         found_places = response.json()['response']['GeoObjectCollection']['featureMember']
@@ -193,9 +193,9 @@ def view_orders(request):
 
     for order in Order.objects.with_full_price().annotate(
         coords=Subquery(customer_place.values('coordinates'))
-        ).exclude(
-        status=Order.COMPLEATED
-        ).order_by('status'):
+            ).exclude(
+                status=Order.COMPLEATED
+            ).order_by('status'):
 
         if order.cooking_restaurant_id:
             get_not_new_order_item(order, order_items, menu_items)

@@ -28,7 +28,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'debug_toolbar',
-    "phonenumber_field",
+    'phonenumber_field',
     'rest_framework',
     'django.contrib.gis',
 ]
@@ -131,4 +131,5 @@ STATICFILES_DIRS = [
 
 PHONENUMBER_DB_FORMAT = 'E164'
 PHONENUMBER_DEFAULT_REGION = 'RU'
+
 YANDEX_GEOCODER_API_KEY = env('YANDEX_GEOCODER_API_KEY')

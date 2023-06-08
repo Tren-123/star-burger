@@ -91,8 +91,8 @@ class ProductAdmin(admin.ModelAdmin):
 
     class Media:
         css = {
-            "all": (
-                static("admin/foodcartapp.css")
+            'all': (
+                static('admin/foodcartapp.css')
             )
         }
 
@@ -111,7 +111,7 @@ class ProductAdmin(admin.ModelAdmin):
 
 
 @admin.register(ProductCategory)
-class ProductAdmin(admin.ModelAdmin):
+class ProductCategoryAdmin(admin.ModelAdmin):
     pass
 
 

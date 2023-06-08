@@ -65,6 +65,11 @@ SECRET_KEY=django-insecure-0if40nf4nf93n4
 YANDEX_GEOCODER_API_KEY=your_personal_secret_key_here
 ```
 
+Установите расширение SpatiaLite для базы данных SQLite для работы с geo данными. Для Linux Ubuntu 22.04 используйте команду ниже, для других OS смотрите [документацию](https://docs.djangoproject.com/en/4.1/ref/contrib/gis/install/) Django
+```
+sudo apt install libsqlite3-mod-spatialite
+```
+
 Создайте файл базы данных SQLite и отмигрируйте её следующей командой:
 
 ```sh
