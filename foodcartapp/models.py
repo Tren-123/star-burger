@@ -136,13 +136,13 @@ class Order(models.Model):
     NEW_ORDER = '1.new_order'
     COOKING = '2.cooking'
     IN_DELIVERY = '3.in_delivery'
-    COMPLEATED = '4.compleated'
+    COMPLETED = '4.completed'
 
     STATUS_CHOICES = [
         (NEW_ORDER, 'Необработанный'),
         (COOKING, 'Готовится в ресторане'),
         (IN_DELIVERY, 'Доставляется курьером'),
-        (COMPLEATED, 'Доставлен'),
+        (COMPLETED, 'Доставлен'),
     ]
     ON_SITE = 'on_site'
     CASH = 'cash'

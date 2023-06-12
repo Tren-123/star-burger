@@ -194,7 +194,7 @@ def view_orders(request):
     for order in Order.objects.with_full_price().annotate(
         coords=Subquery(customer_place.values('coordinates'))
             ).exclude(
-                status=Order.COMPLEATED
+                status=Order.COMPLETED
             ).order_by('status'):
 
         if order.cooking_restaurant_id:
