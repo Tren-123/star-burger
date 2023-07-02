@@ -51,13 +51,18 @@ python -m venv venv
 
 Установите зависимости в виртуальное окружение:
 ```sh
-pip install -r requirements.txt
+pip install -r requirements_dev.txt
 ```
 
 Определите переменные окружения `SECRET_KEY`, `DEBUG`. Создать файл `.env` в каталоге `star_burger/` и положите туда такой код:
 ```sh
 SECRET_KEY=django-insecure-0if40nf4nf93n4
 DEBUG=true
+```
+Для просмотра логгов в проекте используется сервис [Rollbar](https://rollbar.com/). Для активации зарегистрируйтесь на сайте и получите access token. Токен поместите в переменную окружения `ROLLBAR_TOKEN` в файле `.env`. Также вы можете определить название окружения через переменную `ROLLBAR_ENV`, по умолчанию в настройках указано `development`:
+```sh
+ROLLBAR_TOKEN=your_personal_secret_token_here
+ROLLBAR_ENV=your_enviroment_name
 ```
 
 Проект использует API Yandex Геокодер для преобразования текстового адреса в координаты. Для работы требуется API ключ, получите его в [кабинете разработчика](https://developer.tech.yandex.ru/services).
@@ -160,6 +165,7 @@ Parcel будет следить за файлами в каталоге `bundle
 - `SECRET_KEY` — секретный ключ проекта. Он отвечает за шифрование на сайте. Например, им зашифрованы все пароли на вашем сайте.
 - `ALLOWED_HOSTS` — [см. документацию Django](https://docs.djangoproject.com/en/3.1/ref/settings/#allowed-hosts)
 - `YANDEX_GEOCODER_API_KEY` — [см. инструкции выше в разделе dev версии](#как-собрать-бэкенд) 
+- `ROLLBAR_TOKEN`, `ROLLBAR_ENV` = [см. инструкции выше в разделе dev версии](#как-собрать-бэкенд) 
 
 ## Цели проекта
 
