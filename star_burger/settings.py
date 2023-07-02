@@ -42,6 +42,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'debug_toolbar.middleware.DebugToolbarMiddleware',
+    'rollbar.contrib.django.middleware.RollbarNotifierMiddleware',
 ]
 
 ROOT_URLCONF = 'star_burger.urls'
@@ -129,7 +130,15 @@ STATICFILES_DIRS = [
     os.path.join(BASE_DIR, "bundles"),
 ]
 
+STATIC_ROOT = '/var/www/starburger-static/'
 PHONENUMBER_DB_FORMAT = 'E164'
 PHONENUMBER_DEFAULT_REGION = 'RU'
 
 YANDEX_GEOCODER_API_KEY = env('YANDEX_GEOCODER_API_KEY')
+
+ROLLBAR = {
+    'access_token': env('ROLLBAR_TOKEN'),
+    'environment': env('ROLLBAR_ENV'),
+    'code_version': '1.0',
+    'root': BASE_DIR,
+}
