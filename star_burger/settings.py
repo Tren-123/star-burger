@@ -86,9 +86,9 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 MEDIA_URL = '/media/'
 
 db_config = dj_database_url.config(
-    default='sqlite:////{0}'.format(os.path.join(BASE_DIR, 'db.sqlite3'))
+    default=env('POSTGRES_DB_URL')
 )
-db_config['ENGINE'] = 'django.contrib.gis.db.backends.spatialite'
+
 DATABASES = {
     'default': db_config
 }

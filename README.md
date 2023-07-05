@@ -70,13 +70,32 @@ ROLLBAR_ENV=your_enviroment_name
 ```sh
 YANDEX_GEOCODER_API_KEY=your_personal_secret_key_here
 ```
-
-Установите расширение SpatiaLite для базы данных SQLite для работы с geo данными. Для Linux Ubuntu 22.04 используйте команду ниже, для других OS смотрите [документацию](https://docs.djangoproject.com/en/4.1/ref/contrib/gis/install/) Django
+Установите PostgreSQL и необходимое расширение для работы с geo данными PostGis. Для Linux Ubuntu 22.04 используйте команды ниже:
+```sh
+sudo apt install postgresql postgis
 ```
-sudo apt install libsqlite3-mod-spatialite
+Создайте базу данных и пользователя с необходимыми правами
+
+```sh
+sudo su - postgres
+psql
+CREATE DATABASE name_of_your_db;
+CREATE USER name_of_user WITH PASSWORD 'password_of_user';
+ALTER ROLE name_of_user SET client_encoding TO 'utf8';
+ALTER ROLE name_of_user SET default_transaction_isolation TO 'read committed';
+ALTER ROLE name_of_user SET timezone TO 'UTC';
+GRANT ALL PRIVILEGES ON DATABASE name_of_your_db TO name_of_user;
+CREATE EXTENSION postgis;
+\q
+exit
+```
+Для удобства параметры подключения к бд передаются в виде URL. Добавьте переменную окружения `POSTGRES_DB_URL` в файл `.env` и поместите туда запись вида `postgis://USER:PASSWORD@HOST:PORT/NAME`
+
+```sh
+POSTGRES_DB_URL=postgis://name_of_user:password_of_user@localhost:5432/name_of_your_db
 ```
 
-Создайте файл базы данных SQLite и отмигрируйте её следующей командой:
+Запустите миграции:
 
 ```sh
 python manage.py migrate
@@ -166,6 +185,7 @@ Parcel будет следить за файлами в каталоге `bundle
 - `ALLOWED_HOSTS` — [см. документацию Django](https://docs.djangoproject.com/en/3.1/ref/settings/#allowed-hosts)
 - `YANDEX_GEOCODER_API_KEY` — [см. инструкции выше в разделе dev версии](#как-собрать-бэкенд) 
 - `ROLLBAR_TOKEN`, `ROLLBAR_ENV` = [см. инструкции выше в разделе dev версии](#как-собрать-бэкенд) 
+- `POSTGRES_DB_URL` = [см. инструкции выше в разделе dev версии](#как-собрать-бэкенд) 
 
 ## Цели проекта
 
