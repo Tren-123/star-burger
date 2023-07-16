@@ -1,6 +1,7 @@
 # Сайт доставки еды Star Burger
 
 Это сайт сети ресторанов Star Burger. Здесь можно заказать превосходные бургеры с доставкой на дом.
+Посетить сайт - https://starburger.moiproekti.space/
 
 ![скриншот сайта](https://dvmn.org/filer/canonical/1594651635/686/)
 
