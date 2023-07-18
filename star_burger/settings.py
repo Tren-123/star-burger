@@ -136,9 +136,11 @@ PHONENUMBER_DEFAULT_REGION = 'RU'
 
 YANDEX_GEOCODER_API_KEY = env('YANDEX_GEOCODER_API_KEY')
 
+ROLLBAR_TOKEN = env('ROLLBAR_TOKEN', '')
 ROLLBAR = {
-    'access_token': env('ROLLBAR_TOKEN'),
+    'access_token': ROLLBAR_TOKEN,
     'environment': env('ROLLBAR_ENV', 'development'),
     'code_version': '1.0',
     'root': BASE_DIR,
+    'enabled': True if ROLLBAR_TOKEN != '' else False,
 }

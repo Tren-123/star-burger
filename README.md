@@ -60,7 +60,7 @@ pip install -r requirements_dev.txt
 SECRET_KEY=django-insecure-0if40nf4nf93n4
 DEBUG=true
 ```
-Для просмотра логгов в проекте используется сервис [Rollbar](https://rollbar.com/). Для активации зарегистрируйтесь на сайте и получите access token. Токен поместите в переменную окружения `ROLLBAR_TOKEN` в файле `.env`. Также вы можете определить название окружения через переменную `ROLLBAR_ENV`, по умолчанию в настройках указано `development`:
+Для просмотра логгов в проекте используется сервис [Rollbar](https://rollbar.com/). По умолчанию сервис отключен, проект можно запустить без него. Для активации зарегистрируйтесь на сайте и получите access token. Токен поместите в переменную окружения `ROLLBAR_TOKEN` в файле `.env`. Также вы можете определить название окружения через переменную `ROLLBAR_ENV`, по умолчанию в настройках указано `development`:
 ```sh
 ROLLBAR_TOKEN=your_personal_secret_token_here
 ROLLBAR_ENV=your_enviroment_name
