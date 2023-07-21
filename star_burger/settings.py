@@ -142,5 +142,5 @@ ROLLBAR = {
     'environment': env('ROLLBAR_ENV', 'development'),
     'code_version': '1.0',
     'root': BASE_DIR,
-    'enabled': True if ROLLBAR_TOKEN != '' else False,
+    'enabled': ROLLBAR_TOKEN != '',
 }
